@@ -2,8 +2,10 @@
 
 ##使用说明
 
+目前的版本主要是公司所需，采用了`AMD`模式开发，以后会做调整。
+
 ```
-import 'cascadingdate';
+var cascadingdate = require('cascadingdate');
 cascadingdate(container, options);
 ```
 
@@ -29,6 +31,15 @@ cascadingdate(container, options);
 
 #### minDate
 可显示的最小日期，默认为`1`，请传入数字或`Date`对象。
+
+#### yearSuffix
+默认为空字符串，如果想显示`2016年`，请传入字符串`'年'`。
+
+#### monthSuffix
+默认为空字符串，如果想显示`7月`，请传入`'月'`。
+
+#### blank_text
+未做选择时的选项文本值，年、月、日三个下拉框均为`'请选择'`，请传入数组进行更改，例如`['年', '月', '日']`
 
 #### style_prefix
 组件样式前缀，默认是`date`。
