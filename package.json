@@ -1,0 +1,11 @@
+{
+    "name": "cascading_date",
+    "version": "1.0.0",
+    "description": "cascading date selects",
+    "main": "index.js",
+    "scripts": {
+        
+    },
+    "author": "jiaxin.li",
+    "license": "ISC"
+}
