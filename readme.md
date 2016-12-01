@@ -1,17 +1,17 @@
 该组件实现了级联日期下拉框的功能，即选择完'年'后才能选'月'，选择了'月'后才能选择'日'。
 
-##使用说明
+## 使用说明
 
-目前的版本主要是公司所需，采用了`AMD`模式开发，以后会做调整。
-
+### AMD
 ```
 var cascadingdate = require('cascadingdate');
 cascadingdate(container, options);
 ```
+### 用`<script>`标签引入
 
-##参数说明
+## 参数说明
 
-###container
+### container
 承载该日期组件的dom元素。
 
 ### options
@@ -44,3 +44,16 @@ cascadingdate(container, options);
 #### style_prefix
 组件样式前缀，默认是`date`。
 
+## 返回值
+
+### getDate()
+
+返回值，各下拉框当前所选取的值：
+```
+{
+    year,
+    month,
+    date
+}
+```
+未选择的下拉框对应的属性值为`null`.
