@@ -78,7 +78,7 @@
 
     CascadingSet.prototype.renderMonth = function() {
         var htmlArr = [];
-        htmlArr.push(this.monthSelect.innerHTML);
+        htmlArr.push('<option value="">' + this.config.blank_text[1] + '</option>');
 
         var startIndex = 1;
         var endIndex = 12;
@@ -123,7 +123,7 @@
         return htmlArr.join('');
     };
 
-    CascadingSet.prototype.renderSet = function() {
+    CascadingSet.prototype.renderInit = function() {
         
         var yearDom = this.renderYear();
         this.container.appendChild(yearDom);
@@ -149,42 +149,56 @@
         this.yearSelect = selects[0];
         this.monthSelect = selects[1];
         this.dateSelect = selects[2];
-        
-        addEvent(this.yearSelect, 'change', function() {
+
+        addEvent(this.yearSelect, 'change', changeYear.bind(this));
+        addEvent(this.monthSelect, 'change', changeMonth.bind(this));
+
+        function changeYear() {
+
             if (this.yearSelect.value) {
 
-                if (this.monthSelect.getAttribute('disabled')) {
-                    this.monthSelect.removeAttribute('disabled');
-                    this.monthSelect.innerHTML = this.renderMonth();
-                    return;
-                }
+                this.monthSelect.getAttribute('disabled') && this.monthSelect.removeAttribute('disabled');
+                var oldMonth = this.monthSelect.value;
+                this.monthSelect.innerHTML = this.renderMonth();
 
-                if (!this.dateSelect.getAttribute('disabled')) {
-                    var oldValue = this.dateSelect.value;
-                    this.dateSelect.innerHTML = this.renderDate(this.monthSelect.value);
-                    if (oldValue !== '' && this.monthSelect.value == '1' && oldValue <= this.dateArr[1]) {
-                        this.dateSelect.value = oldValue;  
+                if (/^\d+$/.test(oldMonth)) {
+                    var monthOptions = this.monthSelect.getElementsByTagName('option');
+                    if (oldMonth > parseInt(monthOptions[monthOptions.length - 1].value) || oldMonth < parseInt(monthOptions[1].value)) {
+                    } else {
+                        this.monthSelect.value = oldMonth;
                     }
+                }
+                
+                if (this.monthSelect.value === '') {
+                    disableSelect(this.dateSelect);
+                }
+                if (!this.dateSelect.getAttribute('disabled')) {
+                    changeMonth.call(this);
                 }
             } else {
                 disableSelect(this.monthSelect);
                 disableSelect(this.dateSelect);
             }
-        }.bind(this));
+        }
 
-        addEvent(this.monthSelect, 'change', function() {
-            if (this.monthSelect.value) {
+        function changeMonth() {
+
+            if (this.monthSelect.value !== '') {
                 this.dateSelect.getAttribute('disabled') && this.dateSelect.removeAttribute('disabled');
-                var oldValue = this.dateSelect.value;
+                var oldDate = this.dateSelect.value;
                 this.dateSelect.innerHTML = this.renderDate(this.monthSelect.value);
 
-                if (oldValue && oldValue <= this.dateArr[this.monthSelect.value]) {
-                    return this.dateSelect.value = oldValue;
-                }   
+                if (oldDate) {
+                    var dateOptions = this.dateSelect.getElementsByTagName('option');
+                    if (oldDate > parseInt(dateOptions[dateOptions.length - 1].value) || oldDate < parseInt(dateOptions[1].value)) {
+                    } else {
+                        this.dateSelect.value = oldDate;
+                    }
+                }
             } else {
                 disableSelect(this.dateSelect);
             }
-        }.bind(this));
+        }
 
         function disableSelect(dom) {
             dom.setAttribute('disabled', 'disabled');
@@ -203,25 +217,30 @@
     function checkOptions(options) {
 
         if (options.maxDate) {
-            options.maxYear = options.maxDate.getFullYear();
-            var maxMonth = options.maxDate.getMonth() + 1;
-            if (options.monthRange && options.monthRange.length == 2) {
-                options.monthRange.splice(1, 1, maxMonth);
-            } else {
-                options.monthRange = [1, maxMonth];
-            }
-            options.maxDay = options.maxDate.getDate();
+            options = setMaxMin('max', options);
         }
 
-        if (options.minDate) {
-            options.minYear = options.minDate.getFullYear();
-            var minMonth = options.minDate.getMonth() + 1;
+        if (options.minDate) { 
+            options = setMaxMin('min', options);        
+        }
+
+        function setMaxMin(prefix, options) {
+            options[prefix + 'Year'] = options[prefix + 'Date'].getFullYear();
+            var monthEdge = options[prefix + 'Date'].getMonth() + 1;
+            var replace = prefix == 'max' ? 1 : 0;
             if (options.monthRange && options.monthRange.length == 2) {
-                options.monthRange.splice(0, 1, minMonth);
+                options.monthRange.splice(replace, 1, monthEdge);
             } else {
-                options.monthRange = [minMonth, 12];
+                switch (prefix) {
+                    case 'max':
+                        options.monthRange = [1, monthEdge];
+                        break;
+                    case 'min':
+                        options.monthRange = [monthEdge, 12];
+                }
             }
-            options.minDay = options.minDate.getDate();            
+            options[prefix + 'Day'] = options[prefix + 'Date'].getDate();
+            return options;
         }
 
         if (!/^\d+$/.test(options.maxYear)) {
@@ -284,7 +303,7 @@
         options = checkOptions(options);
 
         var cascadingObj = new CascadingSet(container, options);
-        cascadingObj.renderSet();
+        cascadingObj.renderInit();
         return cascadingObj.getDate.bind(cascadingObj);
     }
 
