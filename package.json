@@ -8,7 +8,7 @@
     "validate_filename": "node node_modules/validate_filename/index.js -e '^[a-z0-9\\-_./]+$' -m '约定文件名由小写字母、数字、_组成' `git diff --staged --name-only --diff-filter=ACMRTU`",
     "eslint": "files=`git diff --staged --name-only --diff-filter=ACMRTU | grep -iE '\\.js$'`; if [ \"${files:=empty}\" != \"empty\" ]; then eslint -c .eslintrc.json $files; fi",
     "sasslint": "files=`git diff --staged --name-only --diff-filter=ACMRTU | grep -iE '\\.s[ac]ss$'`; if [ \"${files:=empty}\" != \"empty\" ]; then sass-lint --verbose --no-exit $files; fi",
-    "publish": "rm -rf build && mkdir build && uglifyjs js/cascadingdate.js -o build/cascadingdate.min.js"
+    "publish": "rm -rf build && mkdir build;uglifyjs js/cascadingdate.js -o build/cascadingdate.min.js"
   },
   "config": {
     "ghooks": {

@@ -20,7 +20,7 @@
 
     function extend(src, dst) {
         var keys = Object.keys(dst);
-        for (let i = 0; i < keys.length; i++) {
+        for (var i = 0; i < keys.length; i++) {
             src[keys[i]] = dst[keys[i]];
         }
         return src;        
@@ -44,8 +44,10 @@
                 maxYear: (new Date).getFullYear() + 50,
                 minYear: 1949,
                 monthRange: [1, 12],
+                maxDay: null,
+                minDay: 1,
                 maxDate: null,
-                minDate: 1,
+                minDate: null,
                 yearSuffix: '',
                 i18n: {
                     months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -58,6 +60,7 @@
         this.yearSelect = null;
         this.monthSelect = null;
         this.dateSelect = null;
+        this.dateArr = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     }
 
     CascadingSet.prototype.renderYear = function() {
@@ -77,32 +80,47 @@
         var htmlArr = [];
         htmlArr.push(this.monthSelect.innerHTML);
 
-        for (var i = this.config.monthRange[0]; i <= this.config.monthRange[1]; i++) {
+        var startIndex = 1;
+        var endIndex = 12;
+        if (this.yearSelect.value == this.config.maxYear) {
+            endIndex = this.config.monthRange[1];
+        }
+        if (this.yearSelect.value == this.config.minYear) {
+            startIndex = this.config.monthRange[0];
+        }
+        for (var i = startIndex; i <= endIndex; i++) {
             htmlArr.push('<option value="' + (i - 1) + '">' + this.config.i18n.months[i - 1] +'</option>');
         }
         return htmlArr.join('');
     };
 
     CascadingSet.prototype.renderDate = function(month) {
-        var dateArr = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        this.dateArr[1] = 28;
 
         if (isLeapYear(this.yearSelect.value)) {
-            dateArr.splice(1, 1, 29);
+            this.dateArr.splice(1, 1, 29);
         }
 
         var htmlArr = [];
         htmlArr.push('<option value="">' + this.config.blank_text[2] + '</option>');
        
-        var maxDate = this.config.maxDate && this.config.maxDate < dateArr[month] ? this.config.maxDate : dateArr[month];
+        var maxDay = this.config.maxDay && this.config.maxDay < this.dateArr[month] ? this.config.maxDay : this.dateArr[month];
 
-        for (var i = this.config.minDate; i <= maxDate; i++) {
+        var startIndex = 1;
+        var endIndex = this.dateArr[month];
+
+        if (this.yearSelect.value == this.config.maxYear && month == this.config.monthRange[1] - 1) {
+            endIndex = maxDay;
+        }
+        if (this.yearSelect.value == this.config.minYear && month == this.config.monthRange[0] - 1) {
+            startIndex = this.config.minDay;
+        }
+
+        for (var i = startIndex; i <= endIndex; i++) {
             htmlArr.push('<option value="' + i + '">' + i + '</option>');
         }
 
-        return {
-            html: htmlArr.join(''),
-            dateArr: dateArr
-        };
+        return htmlArr.join('');
     };
 
     CascadingSet.prototype.renderSet = function() {
@@ -143,9 +161,8 @@
 
                 if (!this.dateSelect.getAttribute('disabled')) {
                     var oldValue = this.dateSelect.value;
-                    var dateResult = this.renderDate(this.monthSelect.value);
-                    this.dateSelect.innerHTML = dateResult.html;
-                    if (oldValue !== '' && this.monthSelect.value == '1' && oldValue <= dateResult.dateArr[1]) {
+                    this.dateSelect.innerHTML = this.renderDate(this.monthSelect.value);
+                    if (oldValue !== '' && this.monthSelect.value == '1' && oldValue <= this.dateArr[1]) {
                         this.dateSelect.value = oldValue;  
                     }
                 }
@@ -159,10 +176,9 @@
             if (this.monthSelect.value) {
                 this.dateSelect.getAttribute('disabled') && this.dateSelect.removeAttribute('disabled');
                 var oldValue = this.dateSelect.value;
-                var dateResult = this.renderDate(this.monthSelect.value);
-                this.dateSelect.innerHTML = dateResult.html;
+                this.dateSelect.innerHTML = this.renderDate(this.monthSelect.value);
 
-                if (oldValue && oldValue <= dateResult.dateArr[this.monthSelect.value]) {
+                if (oldValue && oldValue <= this.dateArr[this.monthSelect.value]) {
                     return this.dateSelect.value = oldValue;
                 }   
             } else {
@@ -185,6 +201,29 @@
     };
 
     function checkOptions(options) {
+
+        if (options.maxDate) {
+            options.maxYear = options.maxDate.getFullYear();
+            var maxMonth = options.maxDate.getMonth() + 1;
+            if (options.monthRange && options.monthRange.length == 2) {
+                options.monthRange.splice(1, 1, maxMonth);
+            } else {
+                options.monthRange = [1, maxMonth];
+            }
+            options.maxDay = options.maxDate.getDate();
+        }
+
+        if (options.minDate) {
+            options.minYear = options.minDate.getFullYear();
+            var minMonth = options.minDate.getMonth() + 1;
+            if (options.monthRange && options.monthRange.length == 2) {
+                options.monthRange.splice(0, 1, minMonth);
+            } else {
+                options.monthRange = [minMonth, 12];
+            }
+            options.minDay = options.minDate.getDate();            
+        }
+
         if (!/^\d+$/.test(options.maxYear)) {
             delete options.maxYear;
         }
@@ -231,17 +270,10 @@
             }
         }
 
-        if (options.maxDate !== undefined) {
-            if (options.minDate !== undefined && options.minDate > options.maxDate) {
-                delete options.maxDate;
-                delete options.minDate;
-            }
-            if (options.maxDate < 1 || options.maxDate > 31) {
-                delete options.maxDate;
-            }
+        if (options.maxDay < 1 || options.maxDay > 31) {
+            delete options.maxDay;
         }
-
-        options.minDate < 1 && delete options.minDate;
+        options.minDay < 1 && delete options.minDay;
         if (options.blank_text){
             options.blank_text.length !== 3 && delete options.blank_text;
         }

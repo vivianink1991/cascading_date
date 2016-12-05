@@ -34,11 +34,17 @@ require(['cascadingdate'], function(cascadingdate) {
 #### monthRange
 月份的显示范围，传入数组，例如`[2, 10]`， 默认是`[1, 12]`。
 
-#### maxDate
+#### maxDay
 可显示的日期最大值，默认为当前月的最后一天，请传入数字。
 
-#### minDate
+#### minDay
 可显示的最小日期，默认为`1`，请传入数字。
+
+#### maxDate
+为`Date`对象，会替换`maxYear`、`monthRange[1]`和`maxDay`为`Date`对象所对应的值。默认为`null`。
+
+#### minDate
+为`Date`对象，会替换`minYear`、`monthRange[0]`和`minDay`为`Date`对象所对应的值。默认为`null`。
 
 #### yearSuffix
 默认为空字符串，如果想显示`2016年`，请传入字符串`'年'`。

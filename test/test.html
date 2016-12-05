@@ -9,6 +9,7 @@
 
 <div id="date_picker"></div>
 <button id="btn">get date</button>
+
 <script src="../js/lib/require.js"></script>
 <script>
 requirejs.config({
@@ -17,7 +18,16 @@ requirejs.config({
 </script>
 <script>
 require(['cascadingdate'], function(cascadingdate) {
-    var getDate = cascadingdate(document.getElementById('date_picker'), {});
+    var getDate = cascadingdate(document.getElementById('date_picker'), {
+        i18n: {
+            months: ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月']
+        },
+        // maxYear: (new Date).getFullYear(),
+        // maxDate: (new Date).getDate(),
+        // monthRange: [1, (new Date).getMonth()]
+        maxDate: new Date('1999-05-31'),
+        minDate: new Date('1999-05-08')
+    });
     document.getElementById('btn').onclick = function() {
         console.log(getDate());
     }
