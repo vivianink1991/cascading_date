@@ -1,14 +1,22 @@
 该组件实现了级联日期下拉框的功能，即选择完'年'后才能选'月'，选择了'月'后才能选择'日'。
 
 ## 使用说明
+`js/cascadingdate.js`为未压缩文件, `build/cascading.min.js`为压缩后的文件。
 
 ### AMD
 ```js
-var cascadingdate = require('cascadingdate');
-cascadingdate(container, options);
+require(['cascadingdate'], function(cascadingdate) {
+    cascadingdate(container, options);
+});
 ```
 ### 用`<script>`标签引入
 
+```js
+<script scr="cascadingdate.min.js"></script>
+<script>
+    cascadingdate(container, options);
+</script>
+```
 ## 参数说明
 
 ### container
@@ -57,4 +65,4 @@ cascadingdate(container, options);
     date
 }
 ```
-未选择的下拉框对应的属性值为`null`.
+未选择的下拉框对应的值为`''`.
