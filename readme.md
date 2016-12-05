@@ -3,7 +3,7 @@
 ## 使用说明
 
 ### AMD
-```
+```js
 var cascadingdate = require('cascadingdate');
 cascadingdate(container, options);
 ```
@@ -27,29 +27,30 @@ cascadingdate(container, options);
 月份的显示范围，传入数组，例如`[2, 10]`， 默认是`[1, 12]`。
 
 #### maxDate
-可显示的日期最大值，默认为当前月的最后一天，请传入数字或`Date`对象。
+可显示的日期最大值，默认为当前月的最后一天，请传入数字。
 
 #### minDate
-可显示的最小日期，默认为`1`，请传入数字或`Date`对象。
+可显示的最小日期，默认为`1`，请传入数字。
 
 #### yearSuffix
 默认为空字符串，如果想显示`2016年`，请传入字符串`'年'`。
 
-#### monthSuffix
-默认为空字符串，如果想显示`7月`，请传入`'月'`。
+#### i18n
+月份显示的文本值，默认是单纯的数字。
 
 #### blank_text
 未做选择时的选项文本值，年、月、日三个下拉框均为`'请选择'`，请传入数组进行更改，例如`['年', '月', '日']`
 
 #### style_prefix
-组件样式前缀，默认是`date`。
+组件样式前缀，默认是`cascading_`。
 
 ## 返回值
 
 ### getDate()
 
 返回值，各下拉框当前所选取的值：
-```
+
+```js
 {
     year,
     month,

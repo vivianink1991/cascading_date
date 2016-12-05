@@ -1,0 +1,23 @@
+.cascading_year,
+.cascading_month,
+.cascading_date {
+  width: 100px;
+  height: 40px;
+  padding: 5px 10px;
+  margin-left: 15px;
+  box-sizing: border-box;
+  border: 1px solid #9B9B9B;
+  border-radius: 5px;
+  background: none;
+  font-size: 14px;
+}
+.cascading_year[disabled],
+.cascading_month[disabled],
+.cascading_date[disabled] {
+  background: #ededed;
+  color: #ccc;
+}
+
+.cascading_year {
+  margin-left: 0;
+}

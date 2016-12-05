@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Test</title>
+<link rel="stylesheet" href="../style/cascadingdate.css">
+</head>
+<body>
+
+<div id="date_picker"></div>
+<button id="btn">get date</button>
+<script src="../js/lib/require.js"></script>
+<script>
+requirejs.config({
+    baseUrl: '../js'
+});
+</script>
+<script>
+require(['cascadingdate'], function(cascadingdate) {
+    var getDate = cascadingdate(document.getElementById('date_picker'), {});
+    document.getElementById('btn').onclick = function() {
+        console.log(getDate());
+    }
+});
+</script>
+</body>
+</html>
