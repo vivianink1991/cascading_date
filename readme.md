@@ -86,7 +86,7 @@ require(['cascadingdate'], function(cascadingdate) {
 
 ### setDefaultDate(edge)
 
-当只选定年的时候，设置月和日的值。`edge`请传入一下两种值：
+当只选定年的时候，设置月和日的值。`edge`请传入以下两种值：
 
 - `'start'`
 
