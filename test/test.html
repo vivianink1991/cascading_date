@@ -4,11 +4,18 @@
 <meta charset="UTF-8">
 <title>Test</title>
 <link rel="stylesheet" href="../style/cascadingdate.css">
+<style>
+.date_box {
+    display: inline-block;
+}
+</style>
 </head>
 <body>
 
-<div id="date_picker"></div>
+<div id="date_picker1" class="date_box"></div> -
+<div id="date_picker2" class="date_box"></div>
 <button id="btn">get date</button>
+<button id="search_btn">search</button>
 
 <script src="../js/lib/require.js"></script>
 <script>
@@ -18,20 +25,38 @@ requirejs.config({
 </script>
 <script>
 require(['cascadingdate'], function(cascadingdate) {
-    var getDate = cascadingdate(document.getElementById('date_picker'), {
+    var datePicker1 = document.getElementById('date_picker1');
+    var dateSet1 = cascadingdate(datePicker1, {
         i18n: {
             months: ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月']
         },
-        // maxYear: (new Date).getFullYear(),
-        // maxDate: (new Date).getDate(),
-        // monthRange: [1, (new Date).getMonth()]
         maxDate: new Date,
-        minDate: new Date('1999-05-08')
+        minDate: new Date('2015-06-18'),
         currentDate: new Date('2015-06-18')
     });
+
+    var datePicker2 = document.getElementById('date_picker2');
+    var dateSet2 = cascadingdate(datePicker2, {
+        i18n: {
+            months: ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月']
+        },
+        maxDate: new Date,
+        minDate: new Date('2015-06-18'),
+        currentDate: new Date
+    });
+
     document.getElementById('btn').onclick = function() {
-        console.log(getDate());
-    }
+        console.log(dateSet1.getDate());
+    };
+
+    document.getElementById('search_btn').onclick = function() {
+        if (!/\d+/.test(dateSet1.getDate.month)) {
+            dateSet1.setDefaultDate('start');
+        }
+        if (!/\d+/.test(dateSet2.getDate.month)) {
+            dateSet2.setDefaultDate('end');
+        }
+    };
 });
 </script>
 </body>

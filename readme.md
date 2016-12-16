@@ -63,6 +63,14 @@ require(['cascadingdate'], function(cascadingdate) {
 
 ## 返回值
 
+一个对象：
+
+```
+{
+    getDate,
+    setDefaultDate
+}
+```
 ### getDate()
 
 返回值，各下拉框当前所选取的值：
@@ -75,3 +83,15 @@ require(['cascadingdate'], function(cascadingdate) {
 }
 ```
 未选择的下拉框对应的值为`''`.
+
+### setDefaultDate(edge)
+
+当只选定年的时候，设置月和日的值。`edge`请传入一下两种值：
+
+- `start`
+
+设置月和日为当前可选择的最早日期。
+
+- `end`
+
+设置月和日为当前可选择的最晚日期。

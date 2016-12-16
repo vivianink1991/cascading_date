@@ -223,6 +223,34 @@
         };
     };
 
+    CascadingSet.prototype.setDefaultDate = function(edge) {
+        var monthOptions = this.monthSelect.getElementsByTagName('option');
+        var dateOptions = [];
+        var mIndex;
+        if (edge === 'start') {
+            mIndex = 1;
+        } 
+        if(edge === 'end') {
+            mIndex = monthOptions.length - 1;
+        }
+
+        setSelect.call(this, mIndex);
+
+        function setSelect(mIndex) {
+            this.monthSelect.value = monthOptions[mIndex].value;
+            this.changeMonth();
+            dateOptions = this.dateSelect.getElementsByTagName('option');
+            var dIndex;
+            if (edge === 'start') {
+                dIndex = 1;
+            }
+            if (edge === 'end') {
+                dIndex = dateOptions.length - 1;
+            }
+            this.dateSelect.value = dateOptions[dIndex].value;
+        }
+    };
+
     function checkOptions(options) {
 
         if (options.maxDate) {
@@ -313,7 +341,11 @@
 
         var cascadingObj = new CascadingSet(container, options);
         cascadingObj.renderInit();
-        return cascadingObj.getDate.bind(cascadingObj);
+
+        return {
+            getDate: cascadingObj.getDate.bind(cascadingObj),
+            setDefaultDate: cascadingObj.setDefaultDate.bind(cascadingObj)
+        };
     }
 
     return cascadingdate;
