@@ -88,10 +88,10 @@ require(['cascadingdate'], function(cascadingdate) {
 
 当只选定年的时候，设置月和日的值。`edge`请传入一下两种值：
 
-- `start`
+- `'start'`
 
 设置月和日为当前可选择的最早日期。
 
-- `end`
+- `'end'`
 
 设置月和日为当前可选择的最晚日期。
