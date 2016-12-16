@@ -52,6 +52,7 @@
                 i18n: {
                     months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                 },
+                currentDate: null,
                 blank_text: ['请选择', '请选择', '请选择'],
                 style_prefix: 'cascading'
             }, options);
@@ -142,6 +143,14 @@
         }
 
         this.eventHandler();
+
+        if (this.config.currentDate) {
+            this.yearSelect.value = this.config.currentDate.getFullYear();
+            this.changeYear();
+            this.monthSelect.value = this.config.currentDate.getMonth();
+            this.changeMonth();
+            this.dateSelect.value = this.config.currentDate.getDate();
+        }
     };
 
     CascadingSet.prototype.eventHandler = function() {
@@ -150,60 +159,60 @@
         this.monthSelect = selects[1];
         this.dateSelect = selects[2];
 
-        addEvent(this.yearSelect, 'change', changeYear.bind(this));
-        addEvent(this.monthSelect, 'change', changeMonth.bind(this));
+        addEvent(this.yearSelect, 'change', this.changeYear.bind(this));
+        addEvent(this.monthSelect, 'change', this.changeMonth.bind(this));
+    };
+    
+    CascadingSet.prototype.changeYear = function() {
 
-        function changeYear() {
+        if (this.yearSelect.value) {
 
-            if (this.yearSelect.value) {
+            this.monthSelect.getAttribute('disabled') && this.monthSelect.removeAttribute('disabled');
+            var oldMonth = this.monthSelect.value;
+            this.monthSelect.innerHTML = this.renderMonth();
 
-                this.monthSelect.getAttribute('disabled') && this.monthSelect.removeAttribute('disabled');
-                var oldMonth = this.monthSelect.value;
-                this.monthSelect.innerHTML = this.renderMonth();
-
-                if (/^\d+$/.test(oldMonth)) {
-                    var monthOptions = this.monthSelect.getElementsByTagName('option');
-                    if (oldMonth > parseInt(monthOptions[monthOptions.length - 1].value) || oldMonth < parseInt(monthOptions[1].value)) {
-                    } else {
-                        this.monthSelect.value = oldMonth;
-                    }
+            if (/^\d+$/.test(oldMonth)) {
+                var monthOptions = this.monthSelect.getElementsByTagName('option');
+                if (oldMonth > parseInt(monthOptions[monthOptions.length - 1].value) || oldMonth < parseInt(monthOptions[1].value)) {
+                } else {
+                    this.monthSelect.value = oldMonth;
                 }
-                
-                if (this.monthSelect.value === '') {
-                    disableSelect(this.dateSelect);
-                }
-                if (!this.dateSelect.getAttribute('disabled')) {
-                    changeMonth.call(this);
-                }
-            } else {
-                disableSelect(this.monthSelect);
-                disableSelect(this.dateSelect);
             }
-        }
-
-        function changeMonth() {
-
-            if (this.monthSelect.value !== '') {
-                this.dateSelect.getAttribute('disabled') && this.dateSelect.removeAttribute('disabled');
-                var oldDate = this.dateSelect.value;
-                this.dateSelect.innerHTML = this.renderDate(this.monthSelect.value);
-
-                if (oldDate) {
-                    var dateOptions = this.dateSelect.getElementsByTagName('option');
-                    if (oldDate > parseInt(dateOptions[dateOptions.length - 1].value) || oldDate < parseInt(dateOptions[1].value)) {
-                    } else {
-                        this.dateSelect.value = oldDate;
-                    }
-                }
-            } else {
-                disableSelect(this.dateSelect);
+            
+            if (this.monthSelect.value === '') {
+                this.disableSelect(this.dateSelect);
             }
+            if (!this.dateSelect.getAttribute('disabled')) {
+                changeMonth.call(this);
+            }
+        } else {
+            this.disableSelect(this.monthSelect);
+            this.disableSelect(this.dateSelect);
         }
+    };
 
-        function disableSelect(dom) {
-            dom.setAttribute('disabled', 'disabled');
-            dom.value = '';
+    CascadingSet.prototype.changeMonth = function() {
+
+        if (this.monthSelect.value !== '') {
+            this.dateSelect.getAttribute('disabled') && this.dateSelect.removeAttribute('disabled');
+            var oldDate = this.dateSelect.value;
+            this.dateSelect.innerHTML = this.renderDate(this.monthSelect.value);
+
+            if (oldDate) {
+                var dateOptions = this.dateSelect.getElementsByTagName('option');
+                if (oldDate > parseInt(dateOptions[dateOptions.length - 1].value) || oldDate < parseInt(dateOptions[1].value)) {
+                } else {
+                    this.dateSelect.value = oldDate;
+                }
+            }
+        } else {
+            this.disableSelect(this.dateSelect);
         }
+    };
+
+    CascadingSet.prototype.disableSelect = function(dom) {
+        dom.setAttribute('disabled', 'disabled');
+        dom.value = '';
     };
 
     CascadingSet.prototype.getDate = function() {

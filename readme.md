@@ -52,6 +52,9 @@ require(['cascadingdate'], function(cascadingdate) {
 #### i18n
 月份显示的文本值，默认是单纯的数字。
 
+#### currentDate
+组件生成时的显示时间，默认为空。请传入一个Date对象。
+
 #### blank_text
 未做选择时的选项文本值，年、月、日三个下拉框均为`'请选择'`，请传入数组进行更改，例如`['年', '月', '日']`
 
