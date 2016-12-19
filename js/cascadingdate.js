@@ -183,7 +183,7 @@
                 this.disableSelect(this.dateSelect);
             }
             if (!this.dateSelect.getAttribute('disabled')) {
-                changeMonth.call(this);
+                this.changeMonth();
             }
         } else {
             this.disableSelect(this.monthSelect);
@@ -224,30 +224,36 @@
     };
 
     CascadingSet.prototype.setDefaultDate = function(edge) {
-        var monthOptions = this.monthSelect.getElementsByTagName('option');
+
         var dateOptions = [];
-        var mIndex;
-        if (edge === 'start') {
-            mIndex = 1;
-        } 
-        if(edge === 'end') {
-            mIndex = monthOptions.length - 1;
+
+        //未选择月份
+        if (!/\d+/.test(this.monthSelect.value)) { 
+            var monthOptions = this.monthSelect.getElementsByTagName('option');
+            var mIndex = getIndex(edge, monthOptions);
+            this.monthSelect.value = monthOptions[mIndex].value;
+            setSelect.call(this);
+
+        } else if (!/\d+/.test(this.dateSelect.value)){ //设置了月份未设置日期
+            setSelect.call(this);
         }
 
-        setSelect.call(this, mIndex);
-
-        function setSelect(mIndex) {
-            this.monthSelect.value = monthOptions[mIndex].value;
+        function setSelect() {
             this.changeMonth();
             dateOptions = this.dateSelect.getElementsByTagName('option');
-            var dIndex;
-            if (edge === 'start') {
-                dIndex = 1;
-            }
-            if (edge === 'end') {
-                dIndex = dateOptions.length - 1;
-            }
+            var dIndex = getIndex(edge, dateOptions);
             this.dateSelect.value = dateOptions[dIndex].value;
+        }
+
+        function getIndex(edge, collection) {
+            var index;
+            if (edge === 'start') {
+                index = 1;
+            } 
+            if(edge === 'end') {
+                index = collection.length - 1;
+            }
+            return index;
         }
     };
 

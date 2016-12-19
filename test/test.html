@@ -50,10 +50,10 @@ require(['cascadingdate'], function(cascadingdate) {
     };
 
     document.getElementById('search_btn').onclick = function() {
-        if (!/\d+/.test(dateSet1.getDate.month)) {
+        if (/\d+/.test(dateSet1.getDate().year)) {
             dateSet1.setDefaultDate('start');
         }
-        if (!/\d+/.test(dateSet2.getDate.month)) {
+        if (/\d+/.test(dateSet2.getDate().year)) {
             dateSet2.setDefaultDate('end');
         }
     };
