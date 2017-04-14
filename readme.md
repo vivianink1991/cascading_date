@@ -1,4 +1,4 @@
-该组件实现了级联日期下拉框的功能，即选择完'年'后才能选'月'，选择了'月'后才能选择'日'。
+该组件实现了级联日期下拉框的功能，即选择完'年'后才能选'月'，选择了'月'后才能选择'日'。[查看样例](https://vivianink1991.github.io/cascading_date/example/test_build.html)
 
 ## 使用说明
 
@@ -14,7 +14,6 @@
 ### AMD
 ```js
 require(['cascadingdate'], function(cascadingdate) {
-    var container = document.getElementById('cascading_wrap');
     cascadingdate(container, options);
 });
 ```
@@ -23,7 +22,6 @@ require(['cascadingdate'], function(cascadingdate) {
 ```js
 <script scr="cascadingdate.min.js"></script>
 <script>
-    var container = document.getElementById('cascading_wrap');
     cascadingdate(container, options);
 </script>
 ```

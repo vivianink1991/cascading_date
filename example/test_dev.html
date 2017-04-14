@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Test</title>
+<link rel="stylesheet" href="../style/cascadingdate.css">
+</head>
+<body>
+
+<div id="cascading_wrap">
+    <select name="year" class="year"></select> 年 -
+    <select name="month" class="month"></select> 月 -
+    <select name="date" class="date"></select> 日
+</div>
+
+<script src="../build/cascadingdate.min.js"></script>
+
+<script>
+var dateSet1 = cascadingdate('#cascading_wrap', {
+    defaultDate: new Date(),
+    selectedBoxes: ['.year', '.month', '.date']
+});
+</script>
+</body>
+</html>
