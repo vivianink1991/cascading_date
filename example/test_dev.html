@@ -13,12 +13,18 @@
     <select name="date" class="date"></select> 日
 </div>
 
-<script src="../build/cascadingdate.min.js"></script>
-
+<script src="../js/lib/require.js"></script>
 <script>
-var dateSet1 = cascadingdate('#cascading_wrap', {
-    defaultDate: new Date(),
-    selectedBoxes: ['.year', '.month', '.date']
+requirejs.config({
+    baseUrl: '../js'
+});
+</script>
+<script>
+require(['cascadingdate'], function(cascadingdate) {
+    var dateSet1 = cascadingdate('#cascading_wrap', {
+        defaultDate: new Date(),
+        selectedBoxes: ['.year', '.month', '.date']
+    });
 });
 </script>
 </body>
