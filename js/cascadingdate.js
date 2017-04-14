@@ -37,7 +37,7 @@
             this[boxes[i]] = this.container.querySelector(selectors[i]);
         }
 
-        // 设置 最小年，最小月份、日期，最大年、最大月份
+        // 设置 最小年中可选的最小月份、日期，最大年中可选的最大月份
         var _minMonthRg =  _self.monthRange[0],
             _minDayRg = _self.dayRange[0];
         if (_self.minDate) {
@@ -102,7 +102,7 @@
                 isCurrent = false;
             
             var _min = (currentYear ===  _self.minYear) ? this.minMonth : _self.monthRange[0],
-                _max = (currentYear === _self.maxYear) ? this.maxMonth : _self.monthRange[1]
+                _max = (currentYear === _self.maxYear) ? this.maxMonth : _self.monthRange[1];
             
             for (var i =  _min; i <=  _max; i++) {
                 if (!current) {
@@ -365,7 +365,7 @@
         cascadingObj._bindChangeMonth();
 
         return {
-            getDate: cascadingObj.getDate.bind(cascadingObj)
+            getDate: cascadingObj._getDate.bind(cascadingObj)
         };
     }
 
