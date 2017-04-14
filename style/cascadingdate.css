@@ -1,6 +1,6 @@
-.cascading_year,
-.cascading_month,
-.cascading_date {
+.year,
+.month,
+.date {
   width: 100px;
   height: 40px;
   padding: 5px 10px;
@@ -11,13 +11,13 @@
   background: none;
   font-size: 14px;
 }
-.cascading_year[disabled],
-.cascading_month[disabled],
-.cascading_date[disabled] {
+.year[disabled],
+.month[disabled],
+.date[disabled] {
   background: #ededed;
   color: #ccc;
 }
 
-.cascading_year {
+.year {
   margin-left: 0;
 }

@@ -8,6 +8,223 @@
     }
 }(this, function() {
 
+    function CascadingSet(container, options) {
+        this.container = document.querySelector(container);
+
+        this.config = extend({
+            selectedBoxes: [],
+            maxYear: (new Date).getFullYear() + 50,
+            minYear: 1949,
+            monthRange: [1, 12],
+            dayRange: [1, null],
+            maxDate: null,
+            minDate: null,
+            yearSuffix: '',
+            i18n: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+            daySuffix: '',
+            defaultDate: null,
+            blank_text: ['请选择', '请选择', '请选择']
+        }, options || {});
+
+        this.dateRangeArr = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+        var _self = this.config;
+
+        // 获取年、月、日DOM
+        var selectors = _self.selectedBoxes;
+        var boxes = ['yearBox', 'monthBox', 'dayBox'];
+        for (var i = 0, len = boxes.length; i < len; i++) {
+            this[boxes[i]] = this.container.querySelector(selectors[i]);
+        }
+
+        // 设置 最小年，最小月份、日期，最大年、最大月份
+        var _minMonthRg =  _self.monthRange[0],
+            _minDayRg = _self.dayRange[0];
+        if (_self.minDate) {
+            var minDate = parseDate(_self.minDate);
+            _self.minDate = minDate;
+            this.minMonth = Math.min(minDate.month, _minMonthR); //最小年的最小月份
+            this.minDay = Math.min(minDate.day, _minDayRg); //可选的最小日期
+        } else {
+            this.minMonth = _minMonthRg;
+            this.minDay = _minDayRg;
+        }
+
+        var _maxMonthRg =  _self.monthRange[1];
+        if  (_self.maxDate) {
+            var maxDate = parseDate(_self.maxDate);
+            _self.maxDate = maxDate;
+            this.maxMonth = Math.max(maxDate.month, _maxMonthRg);
+        } else {
+            this.maxMonth = _maxMonthRg;
+        }
+
+        // 解析 defaultDate
+        if (_self.defaultDate) {
+
+            _self.defaultDate = parseDate(_self.defaultDate);
+
+            // 判断默认年份是不是闰年
+            if (isLeapYear(_self.defaultDate.year)) {
+                this.dateRangeArr[1] = 29;
+            }
+        }
+    }
+
+    CascadingSet.prototype = {
+
+        _renderYear: function(current) {
+            var  _self = this.config;
+
+            this.yearBox.innerHTML = '<option value="">' + _self.blank_text[0] + '</option>';
+
+            var isCurrent = false;
+            for (var i =  _self.minYear; i <=  _self.maxYear; i++) {
+                isCurrent = (i == current) ? true : false;
+                this.yearBox.appendChild(createOption(i + _self.yearSuffix, i, isCurrent));
+            }
+        },
+
+        _renderMonth: function(isDisable, current) { //current从1开始
+
+            var  _self = this.config;
+
+            this.monthBox.innerHTML = '<option value="">' + _self.blank_text[1] + '</option>';
+
+            if (isDisable) {
+                this.monthBox.setAttribute('disabled', true);
+                return;
+            }
+
+            this.monthBox.removeAttribute('disabled');
+
+            var currentYear = parseInt(this.yearBox.value),
+                isCurrent = false;
+            
+            var _min = (currentYear ===  _self.minYear) ? this.minMonth : _self.monthRange[0],
+                _max = (currentYear === _self.maxYear) ? this.maxMonth : _self.monthRange[1]
+            
+            for (var i =  _min; i <=  _max; i++) {
+                if (!current) {
+                    isCurrent = false;
+                } else {
+                    isCurrent = (i == current) ? true : false;  
+                } 
+                this.monthBox.appendChild(createOption(_self.i18n[i - 1], i - 1, isCurrent));
+            }
+        },
+
+        _renderDay: function(isDisable, current) {
+            var _self = this.config;
+
+            this.dayBox.innerHTML = '<option value="">' + _self.blank_text[2] + '</option>';
+
+            if (isDisable) {
+                this.dayBox.setAttribute('disabled', true);
+                return;
+            }
+
+            this.dayBox.removeAttribute('disabled');
+
+            var currentYear = parseInt(this.yearBox.value),
+                currentMonth = parseInt(this.monthBox.value) + 1;
+
+            var _min = (currentYear === _self.minYear && currentMonth === _self.minMonth) ?
+                          this.minDay : _self.dayRange[0];
+            
+            var _max;
+            // 在最大年最大月
+            if (currentYear === _self.maxYear && currentMonth === _self.maxMonth) {
+
+                if (_self.dayRange[1] === null) {
+                    _self.dayRange[1] = Number.MIN_VALUE;
+                }
+
+                if (_self.maxDate) {
+                    _max = Math.max(_self.maxDate.day, _self.dayRange[1], this.dateRangeArr[currentMonth - 1]);  
+                } else {
+                    _max = Math.max(_self.dayRange[1], this.dateRangeArr[currentMonth - 1]);
+                }
+            } else { 
+                _max = Math.max(_self.dayRange[1], this.dateRangeArr[currentMonth - 1]);
+            }
+
+            var isCurrent = false;
+            for (var i = _min; i <= _max; i++) {
+                if (!current) {
+                    isCurrent = false;
+                } else {
+                    isCurrent = (i == current) ? true : false;  
+                } 
+                this.dayBox.appendChild(createOption(i + _self.daySuffix, i, isCurrent));
+            }
+        },
+
+        _bindChangeYear: function() {
+
+            addEvent(this.yearBox, 'change', function() {
+
+                if (!this.yearBox.value.length) {
+                    this._renderMonth(true, null);
+                    this._renderDay(true, null);
+
+                } else {
+                    // 判断是否闰年
+                    this.dateRangeArr[1] = isLeapYear(this.yearBox.value) ? 29 : 28;
+                    
+                    var _oldMonth = this.monthBox.value;
+                    _oldMonth = _oldMonth.length ? parseInt(_oldMonth) + 1 : null;
+                    this._renderMonth(false, _oldMonth);
+
+                    if (!this.dayBox.disabled) {
+                        repaintDaybox.call(this);
+                    }
+                }
+            }.bind(this));
+        },
+
+        _bindChangeMonth: function() {
+
+            addEvent(this.monthBox, 'change', function() {
+
+                if (!this.monthBox.value.length) {
+                    this._renderDay(true, null);
+                } else {
+                    repaintDaybox.call(this);
+                }
+            }.bind(this));
+        },
+
+        _initSet: function() {
+
+            var _self = this.config;
+
+            if  (_self.defaultDate) {
+                this._renderYear(_self.defaultDate.year);
+                this._renderMonth(false, _self.defaultDate.month);
+                this._renderDay(false, _self.defaultDate.day);
+            } else {
+                this._renderYear(false);
+                this._renderMonth(true, null);
+                this._renderDay(true, null);
+            }
+        },
+
+        _getDate: function() {
+            return {
+                year: this.yearSelect.value,
+                month: this.monthSelect.value,
+                day: this.dateSelect.value
+            }; 
+        }
+    };
+
+    function repaintDaybox() {
+        var _oldDay = this.dayBox.value;
+        _oldDay = _oldDay.length ? parseInt(_oldDay) : null;
+        this._renderDay(false, _oldDay);
+    }
+
     function addEvent(element, type, handler) {
         if (document.addEventListener) {
             element.addEventListener(type, handler, false);
@@ -36,226 +253,23 @@
         return isLeap;
     }
 
-    function CascadingSet(container, options) {
-        this.container = container;
-
-        if (options && typeof options === 'object') {
-            this.config = extend({
-                maxYear: (new Date).getFullYear() + 50,
-                minYear: 1949,
-                monthRange: [1, 12],
-                maxDay: null,
-                minDay: 1,
-                maxDate: null,
-                minDate: null,
-                yearSuffix: '',
-                i18n: {
-                    months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                },
-                currentDate: null,
-                blank_text: ['请选择', '请选择', '请选择'],
-                style_prefix: 'cascading'
-            }, options);
+    function createOption(text, val, current) {
+        var item = document.createElement('option');
+        item.setAttribute('value', val);
+        item.innerHTML = text;
+        if (current) {
+            item.selected = "selected";
         }
-
-        this.yearSelect = null;
-        this.monthSelect = null;
-        this.dateSelect = null;
-        this.dateArr = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        return item;
     }
 
-    CascadingSet.prototype.renderYear = function() {
-        var yearDom = document.createElement('select');
-        yearDom.className = this.config.style_prefix + '_year';
-        var htmlArr = [];
-
-        htmlArr.push('<option value="">' + this.config.blank_text[0] + '</option>');
-        for (var i = this.config.minYear; i <= this.config.maxYear; i++) {
-            htmlArr.push('<option value="' + i + '">' + i + this.config.yearSuffix + '</option>');
-        }
-        yearDom.innerHTML = htmlArr.join('');
-        return yearDom;
-    };
-
-    CascadingSet.prototype.renderMonth = function() {
-        var htmlArr = [];
-        htmlArr.push('<option value="">' + this.config.blank_text[1] + '</option>');
-
-        var startIndex = 1;
-        var endIndex = 12;
-        if (this.yearSelect.value == this.config.maxYear) {
-            endIndex = this.config.monthRange[1];
-        }
-        if (this.yearSelect.value == this.config.minYear) {
-            startIndex = this.config.monthRange[0];
-        }
-        for (var i = startIndex; i <= endIndex; i++) {
-            htmlArr.push('<option value="' + (i - 1) + '">' + this.config.i18n.months[i - 1] +'</option>');
-        }
-        return htmlArr.join('');
-    };
-
-    CascadingSet.prototype.renderDate = function(month) {
-        this.dateArr[1] = 28;
-
-        if (isLeapYear(this.yearSelect.value)) {
-            this.dateArr.splice(1, 1, 29);
-        }
-
-        var htmlArr = [];
-        htmlArr.push('<option value="">' + this.config.blank_text[2] + '</option>');
-       
-        var maxDay = this.config.maxDay && this.config.maxDay < this.dateArr[month] ? this.config.maxDay : this.dateArr[month];
-
-        var startIndex = 1;
-        var endIndex = this.dateArr[month];
-
-        if (this.yearSelect.value == this.config.maxYear && month == this.config.monthRange[1] - 1) {
-            endIndex = maxDay;
-        }
-        if (this.yearSelect.value == this.config.minYear && month == this.config.monthRange[0] - 1) {
-            startIndex = this.config.minDay;
-        }
-
-        for (var i = startIndex; i <= endIndex; i++) {
-            htmlArr.push('<option value="' + i + '">' + i + '</option>');
-        }
-
-        return htmlArr.join('');
-    };
-
-    CascadingSet.prototype.renderInit = function() {
-        
-        var yearDom = this.renderYear();
-        this.container.appendChild(yearDom);
-        this.container.innerHTML = this.container.innerHTML + ' 年';
-
-        createSelect.call(this, '_month', 1, ' 月');
-        createSelect.call(this, '_date', 2, ' 日');
-
-        function createSelect(classSuffix, blankIndex, label) {
-            var dom = document.createElement('select');
-            dom.className = this.config.style_prefix + classSuffix;
-            dom.innerHTML = '<option value="">' + this.config.blank_text[blankIndex] + '</option>';
-            dom.setAttribute('disabled', 'disabled');
-            this.container.appendChild(dom);
-            this.container.innerHTML = this.container.innerHTML + label;
-        }
-
-        this.eventHandler();
-
-        if (this.config.currentDate) {
-            this.yearSelect.value = this.config.currentDate.getFullYear();
-            this.changeYear();
-            this.monthSelect.value = this.config.currentDate.getMonth();
-            this.changeMonth();
-            this.dateSelect.value = this.config.currentDate.getDate();
-        }
-    };
-
-    CascadingSet.prototype.eventHandler = function() {
-        var selects = this.container.getElementsByTagName('select');
-        this.yearSelect = selects[0];
-        this.monthSelect = selects[1];
-        this.dateSelect = selects[2];
-
-        addEvent(this.yearSelect, 'change', this.changeYear.bind(this));
-        addEvent(this.monthSelect, 'change', this.changeMonth.bind(this));
-    };
-    
-    CascadingSet.prototype.changeYear = function() {
-
-        if (this.yearSelect.value) {
-
-            this.monthSelect.getAttribute('disabled') && this.monthSelect.removeAttribute('disabled');
-            var oldMonth = this.monthSelect.value;
-            this.monthSelect.innerHTML = this.renderMonth();
-
-            if (/^\d+$/.test(oldMonth)) {
-                var monthOptions = this.monthSelect.getElementsByTagName('option');
-                if (oldMonth > parseInt(monthOptions[monthOptions.length - 1].value) || oldMonth < parseInt(monthOptions[1].value)) {
-                } else {
-                    this.monthSelect.value = oldMonth;
-                }
-            }
-            
-            if (this.monthSelect.value === '') {
-                this.disableSelect(this.dateSelect);
-            }
-            if (!this.dateSelect.getAttribute('disabled')) {
-                this.changeMonth();
-            }
-        } else {
-            this.disableSelect(this.monthSelect);
-            this.disableSelect(this.dateSelect);
-        }
-    };
-
-    CascadingSet.prototype.changeMonth = function() {
-
-        if (this.monthSelect.value !== '') {
-            this.dateSelect.getAttribute('disabled') && this.dateSelect.removeAttribute('disabled');
-            var oldDate = this.dateSelect.value;
-            this.dateSelect.innerHTML = this.renderDate(this.monthSelect.value);
-
-            if (oldDate) {
-                var dateOptions = this.dateSelect.getElementsByTagName('option');
-                if (oldDate > parseInt(dateOptions[dateOptions.length - 1].value) || oldDate < parseInt(dateOptions[1].value)) {
-                } else {
-                    this.dateSelect.value = oldDate;
-                }
-            }
-        } else {
-            this.disableSelect(this.dateSelect);
-        }
-    };
-
-    CascadingSet.prototype.disableSelect = function(dom) {
-        dom.setAttribute('disabled', 'disabled');
-        dom.value = '';
-    };
-
-    CascadingSet.prototype.getDate = function() {
+    function parseDate(date) {
         return {
-            year: this.yearSelect.value,
-            month: this.monthSelect.value,
-            date: this.dateSelect.value
+            year: date.getFullYear(),
+            month: date.getMonth() + 1,
+            day: date.getDate()
         };
-    };
-
-    CascadingSet.prototype.setDefaultDate = function(edge) {
-
-        var dateOptions = [];
-
-        //未选择月份
-        if (!/\d+/.test(this.monthSelect.value)) { 
-            var monthOptions = this.monthSelect.getElementsByTagName('option');
-            var mIndex = getIndex(edge, monthOptions);
-            this.monthSelect.value = monthOptions[mIndex].value;
-            setSelect.call(this);
-
-        } else if (!/\d+/.test(this.dateSelect.value)){ //设置了月份未设置日期
-            setSelect.call(this);
-        }
-
-        function setSelect() {
-            this.changeMonth();
-            dateOptions = this.dateSelect.getElementsByTagName('option');
-            var dIndex = getIndex(edge, dateOptions);
-            this.dateSelect.value = dateOptions[dIndex].value;
-        }
-
-        function getIndex(edge, collection) {
-            var index;
-            if (edge === 'start') {
-                index = 1;
-            } 
-            if(edge === 'end') {
-                index = collection.length - 1;
-            }
-            return index;
-        }
-    };
+    }
 
     function checkOptions(options) {
 
@@ -343,14 +357,15 @@
     }
 
     function cascadingdate(container, options) {
-        options = checkOptions(options);
+        // options = checkOptions(options);
 
         var cascadingObj = new CascadingSet(container, options);
-        cascadingObj.renderInit();
+        cascadingObj._initSet();
+        cascadingObj._bindChangeYear();
+        cascadingObj._bindChangeMonth();
 
         return {
-            getDate: cascadingObj.getDate.bind(cascadingObj),
-            setDefaultDate: cascadingObj.setDefaultDate.bind(cascadingObj)
+            getDate: cascadingObj.getDate.bind(cascadingObj)
         };
     }
 

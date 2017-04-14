@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Test</title>
+<link rel="stylesheet" href="../style/cascadingdate.css">
+<style>
+.date_box {
+    display: inline-block;
+}
+</style>
+</head>
+<body>
+
+<div id="cascading_wrap">
+    <select name="year" class="year"></select> 年 -
+    <select name="month" class="month"></select> 月 -
+    <select name="date" class="date"></select> 日
+</div>
+
+<script src="../js/lib/require.js"></script>
+<script>
+requirejs.config({
+    baseUrl: '../js'
+});
+</script>
+<script>
+require(['cascadingdate'], function(cascadingdate) {
+    var dateSet1 = cascadingdate('#cascading_wrap', {
+        defaultDate: new Date(),
+        selectedBoxes: ['.year', '.month', '.date']
+    });
+});
+</script>
+</body>
+</html>
